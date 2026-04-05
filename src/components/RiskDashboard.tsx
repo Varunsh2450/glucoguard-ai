@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Activity, Heart, Info, Phone, AlertTriangle, CheckCircle2, Clock, Droplet, User, ActivitySquare, Printer, XCircle, Mail } from 'lucide-react';
+import AIAssistant from './AIAssistant';
 
 export default function RiskDashboard() {
   const [formData, setFormData] = useState({
@@ -434,6 +435,8 @@ export default function RiskDashboard() {
         )}
       </div>
     </div>
+    
+    <AIAssistant analysisData={result} patientName={formData.patientName} />
     </>
   );
 }
