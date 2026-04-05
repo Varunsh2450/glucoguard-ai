@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import nodemailer from 'nodemailer';
 
-// Initialize Anthropic conditionally
-const anthropic = process.env.ANTHROPIC_API_KEY
-  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+// Initialize Gemini conditionally
+const genAI = process.env.GEMINI_API_KEY
+  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
   : null;
 
 // Gmail SMTP transporter
@@ -38,8 +38,8 @@ export async function POST(req: Request) {
     let context = '';
     let detailedPatientSummary = '';
 
-    // Mock response if no Anthropic API key
-    if (!anthropic) {
+    // Mock response if no Gemini API key
+    if (!genAI) {
       const glucose = parseFloat(glucoseLevel);
       if (glucose < 55) {
         riskLevel = 'high';
@@ -77,19 +77,21 @@ export async function POST(req: Request) {
         4. "context": The pattern context leading to this based on the inputs.
         5. "detailedPatientSummary": A comprehensive, formal medical description of the patient's current state (3-4 sentences) suitable for a doctor's report.
         
-        Output valid JSON only: 
+        Output valid JSON only matching this exact structure: 
         { "riskLevel": "...", "happening": "...", "caregiverAction": "...", "context": "...", "detailedPatientSummary": "..." }
       `;
 
-      const response = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 400,
-        temperature: 0.1,
-        system: 'You are a precise medical assistant returning only valid JSON.',
-        messages: [{ role: 'user', content: prompt }]
+      // Use Gemini to get structured output
+      const model = genAI.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        systemInstruction: "You are a precise medical assistant returning only valid JSON without any markdown formatting."
       });
 
-      const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
+      const response = await model.generateContent(prompt);
+      let responseText = response.response.text();
+      // Clean up markdown block if present
+      responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+      
       const parsed = JSON.parse(responseText);
 
       riskLevel = parsed.riskLevel;

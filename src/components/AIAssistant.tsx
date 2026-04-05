@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { MessageSquare, Send, X, Bot, User, Activity } from 'lucide-react';
 
 export default function AIAssistant({ analysisData, patientName }: { analysisData: any, patientName: string }) {
@@ -8,7 +9,12 @@ export default function AIAssistant({ analysisData, patientName }: { analysisDat
   const [messages, setMessages] = useState<{role: 'user'|'assistant', content: string}[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Auto-open and send initial context-aware message when analysis completes with HIGH risk
   useEffect(() => {
@@ -68,7 +74,9 @@ export default function AIAssistant({ analysisData, patientName }: { analysisDat
     }
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <>
       {/* Floating Toggle Button */}
       {!isOpen && (
@@ -175,6 +183,7 @@ export default function AIAssistant({ analysisData, patientName }: { analysisDat
 
         </div>
       )}
-    </>
+    </>,
+    document.body
   );
 }

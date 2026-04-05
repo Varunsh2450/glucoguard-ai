@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const anthropic = process.env.ANTHROPIC_API_KEY
-  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+const genAI = process.env.GEMINI_API_KEY
+  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
   : null;
 
 export async function POST(req: Request) {
   try {
     const { messages, contextData } = await req.json();
 
-    if (!anthropic) {
+    if (!genAI) {
       // Mock response for fallback
       await new Promise(resolve => setTimeout(resolve, 1000));
       return NextResponse.json({ 
@@ -37,17 +37,19 @@ export async function POST(req: Request) {
       4. Keep answers under 3 sentences for rapid reading during an emergency.
     `;
 
-    const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 250,
-      system: systemPrompt,
-      messages: messages.map((m: any) => ({
-        role: m.role,
-        content: m.content
-      }))
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      systemInstruction: systemPrompt
     });
 
-    const reply = response.content[0].type === 'text' ? response.content[0].text : 'No text response generated.';
+    // Format previous messages for Gemini
+    const historyLines = messages.map((m: any) => 
+      `${m.role === 'user' ? 'Caregiver' : 'You'}: ${m.content}`
+    );
+    const finalPrompt = `Here is the conversation history:\n${historyLines.join('\n')}\n\nPlease respond to the latest Caregiver message.`;
+
+    const response = await model.generateContent(finalPrompt);
+    const reply = response.response.text();
 
     return NextResponse.json({ reply });
 
