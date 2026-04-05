@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       activityLevel,
       isAlone,
       caregiverEmail,
-      caregiverPhone
+      lovedOnes
     } = data;
 
     let riskLevel = 'medium';
@@ -191,17 +191,25 @@ export async function POST(req: Request) {
 
     const twilioClient = createTwilioClient();
     const twilioFrom = process.env.TWILIO_PHONE_NUMBER;
+    const lovedOnesArray = Array.isArray(lovedOnes) ? lovedOnes : [];
 
-    if (twilioClient && twilioFrom && caregiverPhone && (riskLevel === 'high' || riskLevel === 'medium')) {
+    if (twilioClient && twilioFrom && lovedOnesArray.length > 0 && (riskLevel === 'high' || riskLevel === 'medium')) {
       const riskEmoji = riskLevel === 'high' ? '🚨' : '⚠️';
-      const smsBody = `${riskEmoji} GlucoGuard ALERT [${riskLevel.toUpperCase()}]\nPatient: ${patientName}\nGlucose: ${glucoseLevel} mg/dL\n${happening}\nACTION: ${caregiverAction}`;
+      
+      // Override phrasing slightly based on prompt requirement
+      const actionPhrasing = riskLevel === 'medium' ? 'Check in with them and suggest a small snack.' : caregiverAction;
+      const smsBody = `${riskEmoji} HypoGuard Alert — [${riskLevel.toUpperCase()}] Risk\n\nWhat's happening: ${happening}\n\nCurrent Glucose: ${glucoseLevel} mg/dL\n\nAction needed: ${actionPhrasing}\n\n— HypoGuard AI`;
 
       try {
-        await twilioClient.messages.create({
-          body: smsBody,
-          from: twilioFrom,
-          to: caregiverPhone
-        });
+        await Promise.all(
+          lovedOnesArray.map(phone => 
+            twilioClient.messages.create({
+              body: smsBody,
+              from: twilioFrom,
+              to: phone
+            })
+          )
+        );
         smsSent = true;
       } catch (err: any) {
         console.error('Twilio SMS Error:', err.message);

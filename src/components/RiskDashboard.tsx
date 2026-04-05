@@ -15,8 +15,10 @@ export default function RiskDashboard() {
     activityLevel: 'medium',
     isAlone: 'no',
     caregiverEmail: '',
-    caregiverPhone: ''
+    lovedOnes: [] as string[]
   });
+  
+  const [phoneInput, setPhoneInput] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<null | any>(null);
@@ -36,11 +38,22 @@ export default function RiskDashboard() {
     activityLevel: 'high',
     isAlone: 'yes',
     caregiverEmail: 'caregiver@example.com',
-    caregiverPhone: '+919876543210'
+    lovedOnes: ['+919876543210']
   };
 
   const handleFillDemo = () => {
     setFormData(demoData);
+  };
+
+  const addLovedOne = () => {
+    if (phoneInput && !formData.lovedOnes.includes(phoneInput)) {
+      setFormData(prev => ({ ...prev, lovedOnes: [...prev.lovedOnes, phoneInput] }));
+      setPhoneInput('');
+    }
+  };
+
+  const removeLovedOne = (num: string) => {
+    setFormData(prev => ({ ...prev, lovedOnes: prev.lovedOnes.filter(n => n !== num) }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -243,26 +256,48 @@ export default function RiskDashboard() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
-            <div className="space-y-2 group">
-              <label className="text-sm font-medium text-slate-300 ml-1 flex items-center gap-2">
-                <Phone size={14} className="text-brand-400" /> Caregiver Phone
-                <span className="text-slate-500 text-xs font-normal">(SMS)</span>
-              </label>
+          <div className="p-5 border border-brand-500/30 bg-brand-500/5 rounded-xl space-y-4">
+            <h3 className="text-sm font-bold tracking-wider uppercase text-brand-300 flex items-center gap-2">
+              <Phone size={16} /> Manage Loved Ones (SMS Group)
+            </h3>
+            
+            <div className="flex items-center gap-3">
               <input
                 type="tel"
-                name="caregiverPhone"
-                value={formData.caregiverPhone}
-                onChange={handleChange}
-                className="premium-input"
+                value={phoneInput}
+                onChange={(e) => setPhoneInput(e.target.value)}
+                className="premium-input flex-1"
                 placeholder="+919876543210"
               />
+              <button 
+                type="button" 
+                onClick={addLovedOne}
+                className="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 rounded-lg text-white font-bold text-sm transition-all"
+              >
+                Add
+              </button>
             </div>
-            <div className="flex items-end pb-2">
-              <p className="text-xs text-slate-500 leading-relaxed">
-                📱 SMS sent via <span className="text-brand-400 font-semibold">Twilio</span> on medium/high risk. Use international format e.g. +91…
-              </p>
-            </div>
+            
+            {formData.lovedOnes.length > 0 && (
+              <div className="space-y-2 pt-2">
+                {formData.lovedOnes.map((num) => (
+                  <div key={num} className="flex items-center justify-between bg-black/30 border border-white/10 px-4 py-2.5 rounded-lg">
+                    <span className="font-mono text-sm tracking-widest text-slate-300">{num}</span>
+                    <button 
+                      type="button" 
+                      onClick={() => removeLovedOne(num)}
+                      className="text-red-400 hover:text-red-300 text-xs font-bold uppercase tracking-wider bg-red-500/10 hover:bg-red-500/20 px-3 py-1 rounded transition-colors"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            <p className="text-xs text-slate-500 leading-relaxed">
+              📱 Texts sent simultaneously via <span className="text-brand-400 font-semibold">Twilio</span> automatically upon medium/high risk detection.
+            </p>
           </div>
 
 
