@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import nodemailer from 'nodemailer';
+import twilio from 'twilio';
 
 // Initialize Gemini conditionally
 const genAI = process.env.GEMINI_API_KEY
@@ -19,6 +20,12 @@ const createTransporter = () => {
   });
 };
 
+// Twilio SMS client
+const createTwilioClient = () => {
+  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) return null;
+  return twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+};
+
 export async function POST(req: Request) {
   try {
     const data = await req.json();
@@ -29,7 +36,8 @@ export async function POST(req: Request) {
       insulinTaken,
       activityLevel,
       isAlone,
-      caregiverEmail
+      caregiverEmail,
+      caregiverPhone
     } = data;
 
     let riskLevel = 'medium';
@@ -177,6 +185,30 @@ export async function POST(req: Request) {
       }
     }
 
+    // ── Send Twilio SMS alert ──────────────────────────────────────────
+    let smsSent = false;
+    let smsError = null;
+
+    const twilioClient = createTwilioClient();
+    const twilioFrom = process.env.TWILIO_PHONE_NUMBER;
+
+    if (twilioClient && twilioFrom && caregiverPhone && (riskLevel === 'high' || riskLevel === 'medium')) {
+      const riskEmoji = riskLevel === 'high' ? '🚨' : '⚠️';
+      const smsBody = `${riskEmoji} GlucoGuard ALERT [${riskLevel.toUpperCase()}]\nPatient: ${patientName}\nGlucose: ${glucoseLevel} mg/dL\n${happening}\nACTION: ${caregiverAction}`;
+
+      try {
+        await twilioClient.messages.create({
+          body: smsBody,
+          from: twilioFrom,
+          to: caregiverPhone
+        });
+        smsSent = true;
+      } catch (err: any) {
+        console.error('Twilio SMS Error:', err.message);
+        smsError = err.message;
+      }
+    }
+
     return NextResponse.json({
       success: true,
       data: {
@@ -186,7 +218,9 @@ export async function POST(req: Request) {
         context,
         detailedPatientSummary,
         emailSent,
-        emailError
+        emailError,
+        smsSent,
+        smsError
       }
     });
 

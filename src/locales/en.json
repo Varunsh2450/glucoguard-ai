@@ -1,0 +1,49 @@
+{
+  "app_name": "GlucoGuard",
+  "tagline": "Protecting patients. Empowering care.",
+  
+  "dashboard": {
+    "current_glucose": "Current Glucose",
+    "risk_score": "Risk Score",
+    "predicted_glucose": "Predicted Glucose",
+    "insulin_on_board": "Insulin On Board"
+  },
+  
+  "risk_levels": {
+    "low": "Safe",
+    "medium": "Medium Risk",
+    "high": "High Risk"
+  },
+  
+  "alerts": {
+    "eat_carbs_now": "Eat 15g of fast-acting carbs now",
+    "check_again": "Check your blood sugar again in 15 minutes",
+    "call_doctor": "Call your doctor immediately"
+  },
+
+  "reasons": {
+    "reason_1": "Rapid drop in glucose levels detected over the last 30 minutes.",
+    "reason_2": "High active insulin combined with recent exercise.",
+    "reason_3": "Missed meal window identified based on daily patterns.",
+    "reason_4": "Nighttime hypoglycemia risk factor triggered.",
+    "reason_5": "Extended period of low reading without upward trend."
+  },
+  
+  "night_watch": {
+    "banner": "Night Watch is Active"
+  },
+  
+  "form": {
+    "glucose_reading": "Glucose Reading",
+    "insulin_dose": "Insulin Dose",
+    "carbs_eaten": "Carbs Eaten",
+    "steps": "Steps",
+    "submit": "Submit"
+  },
+  
+  "buttons": {
+    "run_demo": "Run Demo",
+    "log_entry": "Log Entry",
+    "submit": "Submit"
+  }
+}

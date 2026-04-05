@@ -1,12 +1,14 @@
 import Link from 'next/link';
 import { Shield, Zap, Activity, HeartPulse, CheckCircle2, ArrowRight } from 'lucide-react';
+import CellularBackground from '@/components/CellularBackground';
 
 export default function LandingPage() {
   return (
     <div className="flex-1 w-full max-w-7xl mx-auto px-6 relative z-10">
       
-      {/* Dynamic Background Overlays specifically for Landing */}
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand-500/20 blur-[150px] rounded-[100%] pointer-events-none -z-10 animate-pulse-glow block"></div>
+      {/* Mayo Clinic inspired dynamic medical background */}
+      <div className="fixed inset-0 w-screen h-screen bg-background -z-30"></div> {/* Covers the global layout aurora */}
+      <CellularBackground />
 
       {/* HERO SECTION */}
       <section className="py-24 md:py-36 flex flex-col lg:flex-row items-center gap-16 relative perspective-1000">
@@ -14,16 +16,16 @@ export default function LandingPage() {
           
           <div className="inline-flex items-center gap-3 px-5 py-2.5 glass-card text-brand-300 text-sm font-bold uppercase tracking-widest rounded-full border border-brand-500/30 shadow-[0_0_30px_rgba(45,212,191,0.2)] mx-auto md:mx-0 backdrop-blur-xl">
             <span className="w-2.5 h-2.5 rounded-full bg-brand-400 animate-pulse shadow-[0_0_10px_rgba(45,212,191,0.8)]" />
-            Next-Gen Telemetry
+            Live Health Tracking
           </div>
           
           <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[1.05]">
-            Protecting patients.<br/>
-            <span className="text-gradient">Empowering care.</span>
+            Keeping you safe.<br/>
+            <span className="text-gradient">Peace of mind.</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-slate-400 max-w-2xl font-light mx-auto md:mx-0 leading-relaxed mix-blend-plus-lighter">
-            GlucoGuard harnesses <span className="font-semibold text-white">Claude AI</span> to perform continuous medical inference, triggering instant SMS emergency alerts before hypoglycemia becomes critical.
+            GlucoGuard analyzes your glucose, insulin, and lifestyle data in real time — detecting dangerous blood sugar drops before they happen and instantly alerting your loved ones.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center gap-6 justify-center md:justify-start pt-4">
@@ -81,8 +83,8 @@ export default function LandingPage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-brand-500/50 to-transparent"></div>
 
         <div className="text-center mb-24 animate-[fade-up_1s_ease-out_forwards]">
-          <h2 className="text-5xl md:text-6xl font-black mb-6 tracking-tight">Unprecedented <span className="text-brand-400">Clinical Accuracy.</span></h2>
-          <p className="text-xl text-slate-400 max-w-2xl mx-auto font-light">Combining sub-second raw telemetry with the massive reasoning parameters of Large Language Models.</p>
+          <h2 className="text-5xl md:text-6xl font-black mb-6 tracking-tight">Incredibly <span className="text-brand-400">Accurate.</span></h2>
+          <p className="text-xl text-slate-400 max-w-2xl mx-auto font-light">Combining your real-time health data with the power of advanced AI.</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-10">
@@ -90,9 +92,9 @@ export default function LandingPage() {
              <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-blue-500/20 transition-all duration-500 shadow-[0_0_20px_rgba(59,130,246,0.15)]">
                <Activity className="text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" size={32} />
              </div>
-             <h3 className="text-2xl font-bold text-white mb-4">Contextual Inference</h3>
+             <h3 className="text-2xl font-bold text-white mb-4">We Understand Your Day</h3>
              <p className="text-slate-400 leading-relaxed text-lg font-light">
-               Moving beyond binary glucose parameters by streaming meal matrices, physical exertion, and isolation status into Claude AI for precise deduction.
+               We look at more than just your blood sugar. By understanding what you eat, how much you exercise, and whether you're alone, our AI understands your true health status.
              </p>
           </div>
           
@@ -101,9 +103,9 @@ export default function LandingPage() {
              <div className="w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-brand-500/20 transition-all duration-500 shadow-[0_0_30px_rgba(45,212,191,0.3)]">
                <Zap className="text-brand-400 drop-shadow-[0_0_8px_rgba(45,212,191,0.8)]" size={32} />
              </div>
-             <h3 className="text-2xl font-bold text-white mb-4">Instant Interventions</h3>
+             <h3 className="text-2xl font-bold text-white mb-4">Instant Help When You Need It</h3>
              <p className="text-slate-400 leading-relaxed text-lg font-light">
-               Zero latency logic bridging the gap. The semantic engine decides on critical caregiver steps and dispatches SMS routes autonomously by Twilio.
+               If you're at risk, our system immediately alerts your loved ones with text messages so they can help you right away.
              </p>
           </div>
           
@@ -111,9 +113,9 @@ export default function LandingPage() {
              <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-indigo-500/20 transition-all duration-500 shadow-[0_0_20px_rgba(99,102,241,0.15)]">
                <Shield className="text-indigo-400 drop-shadow-[0_0_8px_rgba(99,102,241,0.8)]" size={32} />
              </div>
-             <h3 className="text-2xl font-bold text-white mb-4">Military-Grade Reliability</h3>
+             <h3 className="text-2xl font-bold text-white mb-4">Unbreakable Reliability</h3>
              <p className="text-slate-400 leading-relaxed text-lg font-light">
-               A seamless, mathematically secure link between patients and their caretakers, offering fault-tolerant peace of mind scaling globally.
+               A secure, continuous connection between you and your caretakers, offering complete peace of mind no matter where you are.
              </p>
           </div>
         </div>

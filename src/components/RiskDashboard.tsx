@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Activity, Heart, Info, Phone, AlertTriangle, CheckCircle2, Clock, Droplet, User, ActivitySquare, Printer, XCircle, Mail } from 'lucide-react';
+import { Activity, Heart, Info, Phone, AlertTriangle, CheckCircle2, Clock, Droplet, User, ActivitySquare, Printer, XCircle, Mail, MessageSquare } from 'lucide-react';
 import AIAssistant from './AIAssistant';
+import { useTranslation } from 'react-i18next';
 
 export default function RiskDashboard() {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     patientName: '',
     glucoseLevel: '',
@@ -12,7 +14,8 @@ export default function RiskDashboard() {
     insulinTaken: 'no',
     activityLevel: 'medium',
     isAlone: 'no',
-    caregiverEmail: ''
+    caregiverEmail: '',
+    caregiverPhone: ''
   });
 
   const [loading, setLoading] = useState(false);
@@ -22,6 +25,8 @@ export default function RiskDashboard() {
   const [sosActive, setSosActive] = useState(false);
   const [emailSent, setEmailSent] = useState<boolean | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [smsSent, setSmsSent] = useState<boolean | null>(null);
+  const [smsError, setSmsError] = useState<string | null>(null);
 
   const demoData = {
     patientName: 'Jane Smith',
@@ -30,7 +35,8 @@ export default function RiskDashboard() {
     insulinTaken: 'yes',
     activityLevel: 'high',
     isAlone: 'yes',
-    caregiverEmail: 'caregiver@example.com'
+    caregiverEmail: 'caregiver@example.com',
+    caregiverPhone: '+919876543210'
   };
 
   const handleFillDemo = () => {
@@ -57,9 +63,11 @@ export default function RiskDashboard() {
           setSosActive(true);
           setSosCountdown(10);
         }
-        // ── Read email status from Resend API response ──
+        // ── Read email + SMS status from API response ──
         setEmailSent(analysisData.emailSent || false);
         setEmailError(analysisData.emailError || null);
+        setSmsSent(analysisData.smsSent || false);
+        setSmsError(analysisData.smsError || null);
       } else {
         setErrorMsg(resData.error || "Error analyzing risk.");
       }
@@ -94,7 +102,7 @@ export default function RiskDashboard() {
             Critical Risk Detected
           </h1>
           <p className="text-xl md:text-2xl text-red-200/80 mb-12 font-medium text-center max-w-2xl px-6">
-            Severe hypoglycemia requires immediate action. Automatic emergency dispatch to your Caregiver SMS network is in progress.
+            Severe hypoglycemia requires immediate action. Automatic Email & SMS dispatch to your Caregiver network is in progress.
           </p>
           
           <div className="relative flex items-center justify-center w-64 h-64 mb-16">
@@ -168,7 +176,7 @@ export default function RiskDashboard() {
             onClick={handleFillDemo}
             className="text-xs font-semibold uppercase tracking-wider bg-slate-800/80 hover:bg-brand-600 hover:text-white transition-all px-4 py-2 rounded-full border border-slate-600/50 hover:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
           >
-            Load Demo
+            {t('buttons.run_demo', 'Run Demo')}
           </button>
         </div>
 
@@ -191,7 +199,7 @@ export default function RiskDashboard() {
             <div className="space-y-2 group relative">
               <label className="text-sm font-medium text-slate-300 ml-1 flex items-center gap-2">
                 <Heart size={14} className="text-brand-400 drop-shadow-[0_0_8px_rgba(45,212,191,0.5)]" /> 
-                Current Glucose <span className="text-slate-500 text-xs font-normal">(mg/dL)</span>
+                {t('dashboard.current_glucose', 'Current Glucose')} <span className="text-slate-500 text-xs font-normal">(mg/dL)</span>
               </label>
               <input 
                 required
@@ -234,6 +242,29 @@ export default function RiskDashboard() {
               />
             </div>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+            <div className="space-y-2 group">
+              <label className="text-sm font-medium text-slate-300 ml-1 flex items-center gap-2">
+                <Phone size={14} className="text-brand-400" /> Caregiver Phone
+                <span className="text-slate-500 text-xs font-normal">(SMS)</span>
+              </label>
+              <input
+                type="tel"
+                name="caregiverPhone"
+                value={formData.caregiverPhone}
+                onChange={handleChange}
+                className="premium-input"
+                placeholder="+919876543210"
+              />
+            </div>
+            <div className="flex items-end pb-2">
+              <p className="text-xs text-slate-500 leading-relaxed">
+                📱 SMS sent via <span className="text-brand-400 font-semibold">Twilio</span> on medium/high risk. Use international format e.g. +91…
+              </p>
+            </div>
+          </div>
+
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2">
             <div className="space-y-2 group">
@@ -281,11 +312,11 @@ export default function RiskDashboard() {
               {loading ? (
                 <span className="flex items-center gap-3">
                   <div className="w-5 h-5 border-2 border-white/20 border-t-white/90 rounded-full animate-spin" />
-                  Requesting AI Inference
+                  {t('Night Watch is Active', 'Processing...')}
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  Launch Neurological Analysis 
+                  {t('buttons.submit', 'Submit')}
                   <Activity size={20} className="group-hover:animate-pulse" />
                 </span>
               )}
@@ -360,20 +391,33 @@ export default function RiskDashboard() {
                       result.riskLevel === 'medium' ? 'text-orange-500' : 
                       'text-emerald-400'
                     }`}>
-                      {result.riskLevel}
+                      {t(`risk_levels.${result.riskLevel}`, result.riskLevel) as React.ReactNode}
                     </span>
                   </div>
                </div>
-               {emailSent && (
-                 <div className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 bg-emerald-500/10 text-emerald-300 rounded-full border border-emerald-500/30 shadow-[0_0_15px_rgba(52,211,153,0.2)]">
-                   <Mail size={12} className="animate-pulse" /> EMAIL SENT ✓
-                 </div>
-               )}
-               {emailError && (
-                 <div className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 bg-red-500/10 text-red-300 rounded-full border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.2)]" title={emailError}>
-                   <Mail size={12} /> EMAIL FAILED
-                 </div>
-               )}
+               <div className="flex flex-col gap-2 items-end">
+                 {emailSent && (
+                   <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 bg-emerald-500/10 text-emerald-300 rounded-full border border-emerald-500/30 shadow-[0_0_15px_rgba(52,211,153,0.2)]">
+                     <Mail size={11} className="animate-pulse" /> EMAIL SENT ✓
+                   </div>
+                 )}
+                 {emailError && (
+                   <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 bg-red-500/10 text-red-300 rounded-full border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.2)]" title={emailError}>
+                     <Mail size={11} /> EMAIL FAILED
+                   </div>
+                 )}
+                 {smsSent && (
+                   <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 bg-brand-500/10 text-brand-300 rounded-full border border-brand-500/30 shadow-[0_0_15px_rgba(45,212,191,0.2)]">
+                     <MessageSquare size={11} className="animate-pulse" /> SMS SENT ✓
+                   </div>
+                 )}
+                 {smsError && (
+                   <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 bg-red-500/10 text-red-300 rounded-full border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.2)]" title={smsError}>
+                     <MessageSquare size={11} /> SMS FAILED
+                   </div>
+                 )}
+               </div>
+
              </div>
 
              <div className="space-y-6 relative z-10">
